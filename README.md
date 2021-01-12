@@ -25,6 +25,14 @@ Worked on a volunteer project for Jon Tesser of NYC & Co. Ran substantial statsi
 ![](/images/VisitorsBoxPlot.png)
   * Fig. 1:Boxplot mapping the number of total visitors in each Country (clustered cities) from 2019-2028.
 ![](/images/Visitors:year.png)
-  * Fig. 2: Line graph indicating the number of visitors for each Region (clustered cities within clustered countries) from 2019-2028.*
+  * Fig. 2: Line graph indicating the number of visitors for each Region (clustered cities within clustered countries) from 2019-2028.
+
+## Understanding Year-Year Change (amidst pandemic)
+* Computed year to year percent increase for increments within 2019 to 2028 for combined travel
+![](/images/PercInc-Total.png)
+ * Fig. 3: Line graph indicating the year-year percent increase for intervals between 2019 and 2028
+* Observed a percent decrease for most regions from 2019-2020 indicative of the effect of the COVID-19 pandemic.
+* Year-year increase rises and then remains positive within the bounds of data
+* Curve flattens out and the percent increases 0 as tourism appears to stabilize.
 
 
