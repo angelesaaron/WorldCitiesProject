@@ -22,4 +22,5 @@ Worked on a volunteer project for Jon Tesser of NYC & Co. Ran substantial statsi
 ## Mapping Combined Tourism
 * Conducted initial overview analysis on combined tourism within cities, countries and regions
 * Sought to find an initial sense of a trend, and potential effect of COVID-19 pandemic.
-
+![](/images/Visitors:year.png)
+* Boxplot mapping the number of total visitors in each Country (clustered cities) from 2019-2028
