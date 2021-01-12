@@ -40,6 +40,7 @@ Worked on a volunteer project for Jon Tesser of NYC & Co. Ran substantial statsi
 ![](/images/RegPlot.png)
   * Fig. 4: Plot of total year-year percent increase for increments within 2019 to 2028 for combined travel
 * All assumptions of SLR were met.
+
 ![](/images/AssumptionsPlots.png)
   * Fig. 5: qqPlot, Residual Plot, Cook's Distance Plot for Model
 * Computed an adjusted R-squared of 0.9514 for our transformed model
