@@ -1,0 +1,529 @@
+---
+title: "Global World Cities"
+author: "Aaron Angeles"
+date: "1/7/2021"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r echo=FALSE}
+# Importing of Data into R
+library(tidyverse)
+library(ggpubr)
+library(rstatix)
+library("readxl")
+
+getwd()
+city_data <- read_excel("Global Cities - 12.16.xlsx")
+
+```
+# Analyzing the Number of Visitors Per Year By Country
+```{r echo=FALSE}
+# Sorting Data by Country
+sorted_country <- city_data[order(city_data$`Location code`),]
+library("dplyr")
+
+# Getting Country Code
+sorted_country <- mutate(sorted_country, country_code = substr(sorted_country$`Location code`, 1, 3) )
+
+
+# Combing/Clustering Data into Countries
+
+ctc2019 <- aggregate(sorted_country$`2019`, by=list(Country = sorted_country$country_code), FUN=sum)
+ctc2020 <- aggregate(sorted_country$`2020`, by=list(Country = sorted_country$country_code), FUN=sum)
+ctc2021 <- aggregate(sorted_country$`2021`, by=list(Country = sorted_country$country_code), FUN=sum)
+ctc2022 <- aggregate(sorted_country$`2022`, by=list(Country = sorted_country$country_code), FUN=sum)
+ctc2023 <- aggregate(sorted_country$`2023`, by=list(Country = sorted_country$country_code), FUN=sum)
+ctc2024 <- aggregate(sorted_country$`2024`, by=list(Country = sorted_country$country_code), FUN=sum)
+ctc2025 <- aggregate(sorted_country$`2025`, by=list(Country = sorted_country$country_code), FUN=sum)
+ctc2026 <- aggregate(sorted_country$`2026`, by=list(Country = sorted_country$country_code), FUN=sum)
+ctc2027 <- aggregate(sorted_country$`2027`, by=list(Country = sorted_country$country_code), FUN=sum)
+ctc2028 <- aggregate(sorted_country$`2028`, by=list(Country = sorted_country$country_code), FUN=sum)
+
+ctcs <- list(ctc2019, ctc2020, ctc2021, ctc2022, ctc2023, ctc2024, ctc2025, ctc2026, ctc2027, ctc2028)
+
+clustered_total_country <- Reduce(function(x, y) merge(x, y, by="Country", all=TRUE), ctcs)
+clustered_total_country <- setNames(clustered_total_country, c("Country","2019","2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028"))
+clustered_total_country <- mutate(clustered_total_country, (mean_vis = (clustered_total_country$`2019` + clustered_total_country$`2020` + clustered_total_country$`2021` + clustered_total_country$`2022` + clustered_total_country$`2023` + clustered_total_country$`2024` + clustered_total_country$`2025` + clustered_total_country$`2026` + clustered_total_country$`2027` + clustered_total_country$`2028`) / 10))
+clustered_total_country <- setNames(clustered_total_country, c("Country","2019","2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "Mean_Visitors"))
+```
+
+```{r echo=FALSE}
+# Plotting Clustered Total Country Data
+ 
+# Basic boxplot
+boxplot(clustered_total_country$`2019`, clustered_total_country$`2020`,  clustered_total_country$`2021`,  clustered_total_country$`2022`,  clustered_total_country$`2023`, clustered_total_country$`2024`,  clustered_total_country$`2025`,  clustered_total_country$`2026`,  clustered_total_country$`2027`,  clustered_total_country$`2028`, 
+        main = "Boxplots of Total Visitors Per Year",
+        names = c("2019","2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028"),
+        las = 2,
+        col = c("orange","red"),
+        border = "brown",
+        horizontal = TRUE,
+        notch = TRUE,
+        ylim = c(0,200000),
+        ylab = "Years",
+        xlab = "Number of Total Visitors"
+)
+```
+In an initial overview from the box-model You can obviously see that there exists an upward trend of total visitors to all countries, indicative that travel and tourism industry is growing after a steep decline in 2020 due to the COVID-19 pandemic. Based on the total number of visitors in each year, per each country, you can see an ancitipated rise from 2019 in the years preceeding 2022. The 75th percentile of each year seems to grow gradually to 2028, where the mean of all the countries within the year seems to stay around the same range after about 2022.  
+
+# Sorting Countries into Regions, and Analyzing Number of Visitors from 2019-2028
+```{r echo=FALSE}
+# Sorting by Region
+
+Europe <- c("GBR", "AUT", "BEL", "BGR", "BOL", "CHE", "CZE", "DEU", "DNK", "ESP", "EST", "FIN", "FRA", "GRC", "HRV", "HUN", "IRL","ISL", "ITA", "KAZ", "LKA", "LTU", "LVA", "NLD", "NOR", "POL", "PRT", "ROM", "RUS","SRB", "SWE", "TUR", "UKR")
+Africa <- c("AGO", "CIV", "ETH","GHA", "KEN", "NGA", "SEN", "TUN", "TZA" )
+Asia <- c("BGD", "CHN", "HKG", "IDN", "IND", "JPN", "KHM", "KOR", "KWT", "MAC", "MMR", "MYS", "NPL", "PHL", "SGP", "TAW", "THA", "ZAF" )
+Australia <- c("AUS", "NZL")
+MidEast <- c("ARE", "EGY", "IRN", "IRQ", "ISR", "JOR", "LBN", "MAR","OMN", "PAK", "QAT", "SAU"  )
+NorthAmerica <- c("CAN", "MEX", "USA")
+SouthAmerica <- c("ARG", "BRA", "CHL", "COL", "CRI", "ECU", "PAN", "PER", "URY", "VEN", "VNM" )
+
+region_code <- c()
+for (x in clustered_total_country$Country){
+        if (x %in% Europe){
+                region_code <-c(region_code, "Europe")
+        }
+        if (x %in% Africa){
+                region_code <-c(region_code, "Africa")
+        }
+        if (x %in% Asia){
+                region_code <-c(region_code, "Asia")
+        }
+        if (x %in% Australia){
+                region_code <-c(region_code, "Australia")
+        }
+        if (x %in% MidEast){
+                region_code <-c(region_code, "Middle East")
+        }
+        if (x %in% NorthAmerica){
+                region_code <-c(region_code, "North America")
+        }
+        if (x %in% SouthAmerica){
+                region_code <- c(region_code, "South America")
+        }
+}
+region_code <- data.frame(region_code)
+
+clustered_region <- data.frame(clustered_total_country, region_code)
+clustered_region <- setNames(clustered_region, c("Country","2019","2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "Mean_Visitors", "region_code"))
+
+```
+
+```{r echo=FALSE}
+# Combing/Clustering Data into Regions
+
+rtc2019 <- aggregate(clustered_region$`2019`, by=list(Region = clustered_region$region_code), FUN=sum)
+rtc2020 <- aggregate(clustered_region$`2020`, by=list(Region = clustered_region$region_code), FUN=sum)
+rtc2021 <- aggregate(clustered_region$`2021`, by=list(Region = clustered_region$region_code), FUN=sum)
+rtc2022 <- aggregate(clustered_region$`2022`, by=list(Region = clustered_region$region_code), FUN=sum)
+rtc2023 <- aggregate(clustered_region$`2023`, by=list(Region = clustered_region$region_code), FUN=sum)
+rtc2024 <- aggregate(clustered_region$`2024`, by=list(Region = clustered_region$region_code), FUN=sum)
+rtc2025 <- aggregate(clustered_region$`2025`, by=list(Region = clustered_region$region_code), FUN=sum)
+rtc2026 <- aggregate(clustered_region$`2026`, by=list(Region = clustered_region$region_code), FUN=sum)
+rtc2027 <- aggregate(clustered_region$`2027`, by=list(Region = clustered_region$region_code), FUN=sum)
+rtc2028 <- aggregate(clustered_region$`2028`, by=list(Region = clustered_region$region_code), FUN=sum)
+
+rtcs <- list(rtc2019, rtc2020, rtc2021, rtc2022, rtc2023, rtc2024, rtc2025, rtc2026, rtc2027, rtc2028)
+
+clustered_total_region <- Reduce(function(x, y) merge(x, y, by="Region", all=TRUE), rtcs)
+clustered_total_region <- setNames(clustered_total_region, c("Region","2019","2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028"))
+```
+
+
+
+```{r echo=FALSE}
+# Plotting by Region
+library(ggplot2)
+years = c("2019","2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028")
+
+for (x in clustered_total_region$Region){
+        subdat <- clustered_total_region[clustered_total_region$Region == x, years]
+        subdat_l <- data.frame(Value = unlist(subdat),
+                       Year = substr(years, 10, nchar(years)))
+        plot(Value ~ Year, subdat_l, main=x, horizontal = T)
+}
+
+longer_data <- clustered_total_region %>%
+  pivot_longer(years, names_to = "Year", values_to = "Visitors")
+
+
+ggplot(longer_data, aes(Year, Visitors, group=factor(Region))) + geom_line(aes(color=factor(Region)))
+ 
+```
+The various plots show the distribution of visitors over the course of the 2019-2028 range within each region. 
+
+The line-graph is showing the number of total visitors over the course of of the 2019-2028 range within each region. For most regions, there exists a sharp decrease from 2019 to 2020 as a result of the COVID-19 pandemic. After that point, most regions begin to steadily increase the number of total visitors. Asia appears to have the most visitors and the sharpest increase post-pandemic. Regions Australia, South America and Africa don't appear to experience as sharp pandemic-related decreases, nor post-pandemic increases. 
+
+
+# Finding Percent Increase from Year to Year per Region
+```{r echo=FALSE}
+# Finding Percent Increase/Decrease by Region
+
+clustered_perc_inc <- mutate(clustered_total_region, f19t20 = ((clustered_total_region$`2020` - clustered_total_region$`2019`) / clustered_total_region$`2019`) * 100)
+clustered_perc_inc <- mutate(clustered_perc_inc, f20t21 = ((clustered_total_region$`2021` - clustered_total_region$`2020`) / clustered_total_region$`2020`) * 100)
+clustered_perc_inc <- mutate(clustered_perc_inc, f21t22 = ((clustered_total_region$`2022` - clustered_total_region$`2021`) / clustered_total_region$`2021`) * 100)
+clustered_perc_inc <- mutate(clustered_perc_inc, f22t23 = ((clustered_total_region$`2023` - clustered_total_region$`2022`) / clustered_total_region$`2022`) * 100)
+clustered_perc_inc <- mutate(clustered_perc_inc, f23t24 = ((clustered_total_region$`2024` - clustered_total_region$`2023`) / clustered_total_region$`2023`) * 100)
+clustered_perc_inc <- mutate(clustered_perc_inc, f24t25 = ((clustered_total_region$`2025` - clustered_total_region$`2024`) / clustered_total_region$`2024`) * 100)
+clustered_perc_inc <- mutate(clustered_perc_inc, f25t26 = ((clustered_total_region$`2026` - clustered_total_region$`2025`) / clustered_total_region$`2025`) * 100)
+clustered_perc_inc <- mutate(clustered_perc_inc, f26t27 = ((clustered_total_region$`2027` - clustered_total_region$`2026`) / clustered_total_region$`2026`) * 100)
+clustered_perc_inc <- mutate(clustered_perc_inc, f27t28 = ((clustered_total_region$`2028` - clustered_total_region$`2027`) / clustered_total_region$`2027`) * 100)
+
+
+
+clustered_perc_inc = select(clustered_perc_inc, -c("2019","2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028"))
+
+differences <- c("f19t20", "f20t21", "f21t22", "f22t23", "f23t24", "f24t25", "f25t26", "f26t27", "f27t28")
+
+longer_data_perc_inc <- clustered_perc_inc %>%
+  pivot_longer(differences, names_to = "Diff", values_to = "Percent")
+
+
+ggplot(longer_data_perc_inc, aes(Diff, Percent, group=factor(Region))) + geom_line(aes(color=factor(Region)))
+print(clustered_perc_inc)
+
+```
+This figure is graphing the percent increase/decrease for each year-year increment. So from 2019-2020, the percent decrease for most regions is around -50% to -25%, indicative of the effect that the COVID-19 pandemic has had on the tourism industry. As the graph continues, you can see the percent increase from year to year rapidly increases from 2020-2021 and continues to remain positive in each year-year increment. The curve does flatten out and the percent increase approaches 0 as the tourism numbers appear to stabilize. Essentially, you can expect a surge in tourism around the world from 2020 to 2021, when we can expect the pandemic to end. This trend is consistnet for almost all the regions included in the analysis. However, some things to note are that the Middle East appears to experience less steep of stabilization of tourism between 2021 and 2023, where other regions experience the same surge but their year to year percent increase stabilizes "quicker." 
+
+# Modeling the Yera-Year Percent Increase Change with a Transformed SLR
+```{r echo=FALSE}
+reg_model_dat = select(clustered_perc_inc, -c("f19t20"))
+
+differences_wo <- c("f20t21", "f21t22", "f22t23", "f23t24", "f24t25", "f25t26", "f26t27", "f27t28")
+
+longer_data_reg_mod <- reg_model_dat %>%
+  pivot_longer(differences_wo, names_to = "Diff", values_to = "Percent")
+
+reg_model <- lm(log(longer_data_reg_mod$Percent) ~ longer_data_reg_mod$Diff)
+plot(as.factor(longer_data_reg_mod$Diff),longer_data_reg_mod$Percent, main = "Percent Increase from Year-Year Increments from 2020-2028", xlab= "Year-Year Increments", ylab = "Percent Increase/Decrease")
+plot(as.factor(longer_data_reg_mod$Diff),log(longer_data_reg_mod$Percent), main = "Percent Increase from Year-Year Increments from 2020-2028", xlab= "Year-Year Increments", ylab = "Log(Percent Increase/Decrease)")
+
+
+
+
+reg_model <- lm(log(longer_data_reg_mod$Percent) ~ longer_data_reg_mod$Diff)
+summary(reg_model)
+
+#Assumption Plots
+par(mfrow = c(1,3))
+library(car)
+qqPlot(reg_model$residuals)
+
+plot(reg_model$fitted.values, reg_model$residuals)
+abline(0, 0)
+
+plot(reg_model, which = 4)
+cooks.distance(reg_model)
+
+
+```
+This model is another piece of strong evidence to indicate the percent change between year-year trends in the tourism industry. From the initial line graph, we noticed that the year-year percent change seemed to stabilize closer to 0 after a huge spike at the completion of 2020/2021 (and the COVID-19) pandemic. I noticed that the intial graph of year-year percent change and percent increase took the shape of a logarithmic curve. After transformation of the year-year percent changes to become log(Percent Change) ~ Year-Year Difference, the graph appears to linearize. Our reported adjusted $$\{r^2}$$ was 0.9514 and we had all year-year increments predictors  significant in th predction of the log(Percent Change). Given this information, we can expect the log(Percent Change) and the general percent change to stabilize towards 0 from 2028 and beyond. We cannot extrapolate beyond the bounds of our data set. 
+
+Additionally, all assumptions for SLR were met. The errors points appear to follow a normal distribution. There is no pattern within the residual plot, indicative that there is constant variance around the line. In our Cook's Distance, there are no outliers that appear to be influential points which are driving conclusions. No point has a cook's distance exceeding 0.5. 
+
+
+# Analyzing Domestic v.s. International Travel Metrics
+```{r echo=FALSE}
+
+new_sorted_country <- city_data[order(city_data$`Location code`),]
+library("dplyr")
+
+# Getting Country Code
+new_sorted_country <- mutate(sorted_country, country_code = substr(sorted_country$`Location code`, 1, 3) )
+
+
+# Combing/Clustering Data into Countries
+
+new_ctc2019 <- aggregate(new_sorted_country$`2019`, by=list(Country = new_sorted_country$country_code, Indicator = new_sorted_country$Indicator), FUN=sum)
+new_ctc2020 <- aggregate(new_sorted_country$`2020`, by=list(Country = new_sorted_country$country_code, Indicator = new_sorted_country$Indicator), FUN=sum)
+new_ctc2021 <- aggregate(new_sorted_country$`2021`, by=list(Country = new_sorted_country$country_code, Indicator = new_sorted_country$Indicator), FUN=sum)
+new_ctc2022 <- aggregate(new_sorted_country$`2022`, by=list(Country = new_sorted_country$country_code, Indicator = new_sorted_country$Indicator), FUN=sum)
+new_ctc2023 <- aggregate(new_sorted_country$`2023`, by=list(Country = new_sorted_country$country_code, Indicator = new_sorted_country$Indicator), FUN=sum)
+new_ctc2024 <- aggregate(new_sorted_country$`2024`, by=list(Country = new_sorted_country$country_code, Indicator = new_sorted_country$Indicator), FUN=sum)
+new_ctc2025 <- aggregate(new_sorted_country$`2025`, by=list(Country = new_sorted_country$country_code, Indicator = new_sorted_country$Indicator), FUN=sum)
+new_ctc2026 <- aggregate(new_sorted_country$`2026`, by=list(Country = new_sorted_country$country_code, Indicator = new_sorted_country$Indicator), FUN=sum)
+new_ctc2027 <- aggregate(new_sorted_country$`2027`, by=list(Country = new_sorted_country$country_code, Indicator = new_sorted_country$Indicator), FUN=sum)
+new_ctc2028 <- aggregate(new_sorted_country$`2028`, by=list(Country = new_sorted_country$country_code, Indicator = new_sorted_country$Indicator), FUN=sum)
+
+new_clustered_country <- merge(new_ctc2019, new_ctc2020, by=c("Country", "Indicator"))
+new_clustered_country <- merge(new_clustered_country, new_ctc2021, by=c("Country", "Indicator"))
+new_clustered_country <- merge(new_clustered_country, new_ctc2022, by=c("Country", "Indicator"))
+new_clustered_country <- merge(new_clustered_country, new_ctc2023, by=c("Country", "Indicator"))
+new_clustered_country <- merge(new_clustered_country, new_ctc2024, by=c("Country", "Indicator"))
+new_clustered_country <- merge(new_clustered_country, new_ctc2025, by=c("Country", "Indicator"))
+new_clustered_country <- merge(new_clustered_country, new_ctc2026, by=c("Country", "Indicator"))
+new_clustered_country <- merge(new_clustered_country, new_ctc2027, by=c("Country", "Indicator"))
+new_clustered_country <- merge(new_clustered_country, new_ctc2028, by=c("Country", "Indicator"))
+new_clustered_country <- setNames(new_clustered_country, c("Country","Indicator", "2019","2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028"))
+
+
+# Sorting by Region
+
+Europe <- c("GBR", "AUT", "BEL", "BGR", "BOL", "CHE", "CZE", "DEU", "DNK", "ESP", "EST", "FIN", "FRA", "GRC", "HRV", "HUN", "IRL","ISL", "ITA", "KAZ", "LKA", "LTU", "LVA", "NLD", "NOR", "POL", "PRT", "ROM", "RUS","SRB", "SWE", "TUR", "UKR")
+Africa <- c("AGO", "CIV", "ETH","GHA", "KEN", "NGA", "SEN", "TUN", "TZA" )
+Asia <- c("BGD", "CHN", "HKG", "IDN", "IND", "JPN", "KHM", "KOR", "KWT", "MAC", "MMR", "MYS", "NPL", "PHL", "SGP", "TAW", "THA", "ZAF" )
+Australia <- c("AUS", "NZL")
+MidEast <- c("ARE", "EGY", "IRN", "IRQ", "ISR", "JOR", "LBN", "MAR","OMN", "PAK", "QAT", "SAU"  )
+NorthAmerica <- c("CAN", "MEX", "USA")
+SouthAmerica <- c("ARG", "BRA", "CHL", "COL", "CRI", "ECU", "PAN", "PER", "URY", "VEN", "VNM" )
+
+region_code <- c()
+for (x in new_clustered_country$Country){
+        if (x %in% Europe){
+                region_code <-c(region_code, "Europe")
+        }
+        if (x %in% Africa){
+                region_code <-c(region_code, "Africa")
+        }
+        if (x %in% Asia){
+                region_code <-c(region_code, "Asia")
+        }
+        if (x %in% Australia){
+                region_code <-c(region_code, "Australia")
+        }
+        if (x %in% MidEast){
+                region_code <-c(region_code, "Middle East")
+        }
+        if (x %in% NorthAmerica){
+                region_code <-c(region_code, "North America")
+        }
+        if (x %in% SouthAmerica){
+                region_code <- c(region_code, "South America")
+        }
+}
+region_code <- data.frame(region_code)
+
+new_clustered_region <- data.frame(new_clustered_country, region_code)
+new_clustered_region <- setNames(new_clustered_region, c("Country","Indicator", "2019","2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "region_code"))
+
+```
+
+```{r echo=FALSE}
+# Combing/Clustering Data into Regions
+
+new_rtc2019 <- aggregate(new_clustered_region$`2019`, by=list(Region = new_clustered_region$region_code, Indicator = new_clustered_region$Indicator), FUN=sum)
+new_rtc2020 <- aggregate(new_clustered_region$`2020`, by=list(Region = new_clustered_region$region_code, Indicator = new_clustered_region$Indicator), FUN=sum)
+new_rtc2021 <- aggregate(new_clustered_region$`2021`, by=list(Region = new_clustered_region$region_code, Indicator = new_clustered_region$Indicator), FUN=sum)
+new_rtc2022 <- aggregate(new_clustered_region$`2022`, by=list(Region = new_clustered_region$region_code, Indicator = new_clustered_region$Indicator), FUN=sum)
+new_rtc2023 <- aggregate(new_clustered_region$`2023`, by=list(Region = new_clustered_region$region_code, Indicator = new_clustered_region$Indicator), FUN=sum)
+new_rtc2024 <- aggregate(new_clustered_region$`2024`, by=list(Region = new_clustered_region$region_code, Indicator = new_clustered_region$Indicator), FUN=sum)
+new_rtc2025 <- aggregate(new_clustered_region$`2025`, by=list(Region = new_clustered_region$region_code, Indicator = new_clustered_region$Indicator), FUN=sum)
+new_rtc2026 <- aggregate(new_clustered_region$`2026`, by=list(Region = new_clustered_region$region_code, Indicator = new_clustered_region$Indicator), FUN=sum)
+new_rtc2027 <- aggregate(new_clustered_region$`2027`, by=list(Region = new_clustered_region$region_code, Indicator = new_clustered_region$Indicator), FUN=sum)
+new_rtc2028 <- aggregate(new_clustered_region$`2028`, by=list(Region = new_clustered_region$region_code, Indicator = new_clustered_region$Indicator), FUN=sum)
+
+new_rtcs <- list(new_rtc2019, new_rtc2020, new_rtc2021, new_rtc2022, new_rtc2023, new_rtc2024, new_rtc2025, new_rtc2026, new_rtc2027, new_rtc2028)
+
+new_clustered_total_region <- Reduce(function(x, y) merge(x, y, by=c("Region", "Indicator"), all=TRUE), new_rtcs)
+new_clustered_total_region <- setNames(new_clustered_total_region, c("Region","Indicator", "2019","2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028"))
+
+```
+
+
+# Finding Percent Increase for Each Country from Year-Year Increments and Comparing the Domestic and International Increase 
+```{r echo=FALSE}
+
+
+indic_perc_inc <- mutate(new_clustered_total_region, f19t20 = ((new_clustered_total_region$`2020` - new_clustered_total_region$`2019`) / new_clustered_total_region$`2019`) * 100)
+indic_perc_inc <- mutate(indic_perc_inc, f20t21 = ((new_clustered_total_region$`2021` - new_clustered_total_region$`2020`) / new_clustered_total_region$`2020`) * 100)
+indic_perc_inc <- mutate(indic_perc_inc, f21t22 = ((new_clustered_total_region$`2022` - new_clustered_total_region$`2021`) / new_clustered_total_region$`2021`) * 100)
+indic_perc_inc <- mutate(indic_perc_inc, f22t23 = ((new_clustered_total_region$`2023` - new_clustered_total_region$`2022`) / new_clustered_total_region$`2022`) * 100)
+indic_perc_inc <- mutate(indic_perc_inc, f23t24 = ((new_clustered_total_region$`2024` - new_clustered_total_region$`2023`) / new_clustered_total_region$`2023`) * 100)
+indic_perc_inc <- mutate(indic_perc_inc, f24t25 = ((new_clustered_total_region$`2025` - new_clustered_total_region$`2024`) / new_clustered_total_region$`2024`) * 100)
+indic_perc_inc <- mutate(indic_perc_inc, f25t26 = ((new_clustered_total_region$`2026` - new_clustered_total_region$`2025`) / new_clustered_total_region$`2025`) * 100)
+indic_perc_inc <- mutate(indic_perc_inc, f26t27 = ((new_clustered_total_region$`2027` - new_clustered_total_region$`2026`) / new_clustered_total_region$`2026`) * 100)
+indic_perc_inc <- mutate(indic_perc_inc, f27t28 = ((new_clustered_total_region$`2028` - new_clustered_total_region$`2027`) / new_clustered_total_region$`2027`) * 100)
+
+
+
+indic_perc_inc = select(indic_perc_inc, -c("2019","2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028"))
+
+differences <- c("f19t20", "f20t21", "f21t22", "f22t23", "f23t24", "f24t25", "f25t26", "f26t27", "f27t28")
+# for (x in indic_perc_inc$Region){
+#         subdat <- indic_perc_inc[indic_perc_inc$CRegion == x, differences]
+#         subdat_l <- data.frame(Value = unlist(subdat),
+#                        Diff = substr(differences, 10, nchar(years)))
+#         plot(Value ~ Diff, subdat_l, main=x, horizontal = T)
+# }
+
+
+longer_data_indic_perc_inc <-indic_perc_inc %>%
+  pivot_longer(differences, names_to = "Diff", values_to = "Percent")
+
+domestic_long<- subset(longer_data_indic_perc_inc, Indicator == 'Domestic overnight visits')
+intl_long<- subset(longer_data_indic_perc_inc, Indicator == 'International overnight visits') 
+
+ggplot(domestic_long, aes(Diff, Percent, group=factor(Region))) + geom_line(aes(color=factor(Region))) + ylim(-100, 200)
+ggplot(intl_long, aes(Diff, Percent, group=factor(Region))) + geom_line(aes(color=factor(Region))) + ylim(-100, 200)
+
+print(indic_perc_inc)
+
+```
+After writing some queries to sort the data into countries and then regions, I was able to compute a year-year percent increase increment like I did above. Instead of doing a full region summation, I left it to regional data per the varying indicators, domestic and international. In doing so, I wanted to compare the percent increase for domestic travel versus international travel, within each varying region and within the larger scope of tourism. As you can see, the left-most figure is year-year percent increase of domestic overnight visits and the right-most figure is the year-year percent increase of international overnight visits. What stands out is that the after the 2019-2020 interval with the percent decrease due to COVID-19, overall tourism increases from year to year, and the rate of increase stabilizes (displayed earlier). From a comparison standpoint, (after the 2019-2020 COVID-19 affected interval) the expected international overnight travel experiences larger yearly percent increases after the pandemic compared to domestic overnight travel. This could be a result of limited international travel abilities in 2020 due to pandemic restrictions, where domestic travel isn't as restricted. Additionally, it appears that the yearly percent changes are consistent with the region, and the indicator discrepancy is present for almost all the regions. Australia doesn't experience as drastic of a difference between domestic and international visits. The other regions all experience similar differneces between domestic and international.
+
+
+# Summary Statistics & Insights
+```{r echo=FALSE}
+# City's in 2019
+city_reduced <- select(city_data, -c("Region/Country", "Units", "Scale", "Measurement", "Source", "Seasonally adjusted", "Base year price", "Base year index", "Historical end year", "Historical end quarter", "Date of last update", "Source details", "Additional source details", "Indicator code", "Databank code" ))
+
+city_dom<- subset(city_reduced, Indicator == "Domestic overnight visits")
+city_intl <- subset(city_reduced, Indicator == "International overnight visits") 
+
+# 2019 ----------------------------------------------------------------------
+# quantile(city_dom$`2019`, c(0.99))
+# quantile(city_dom$`2019`, c(0.01))
+# summary(city_dom$`2019`)
+# 
+# quantile(city_intl$`2019`, c(0.99))
+# quantile(city_intl$`2019`, c(0.01))
+
+# 2028------------------------------------------------------------------------
+quantile(city_dom$`2028`, c(0.99))
+quantile(city_dom$`2028`, c(0.01))
+summary(city_intl$`2028`)
+
+quantile(city_intl$`2028`, c(0.99))
+quantile(city_intl$`2028`, c(0.01))
+
+
+```
+## 2019 Pre-Pandemic Metrics
+* Cities in the 99th Percentile of Domestic Visitors in 2019 were Mexico City (~54,608), Karachi (~58,099),Shanghai (~65,242) and Chongqing(~145,578)
+
+* Cities in the bottom 1 Percentile of Domestic Visitors in 2019 were Malacca (~10), Dubrovnik (~57), Liege (~107) and Surat (~121).
+
+* Cities in the 99th Percentile for International Visitors in 2019 were Dubai (~16,730), Bangcok (~22,523), Macao (~20,353) and Hong Kong (~18,922).
+
+* Cities in the bottom 1 Percentile for International Visitors in 2019 were Surat (~2), Malacca (~19), Tianan (~39) and Leicester (~77). 
+
+* The median number of domestic overnight visitors for all cities included within the database was 2,462. The minimum and maximum were ~10 (Malacca) and ~145,578 (Chongqing).
+
+* The median number of international overnight visitors for all cities included within the database was ~836. The minimum and maximum were ~2 (Surat), and ~22,523 (Bangcok).
+
+## 2028 Post-Pandemic Metrics
+* Cities in the 99th Percentile of Domestic Visitors in 2028 were Wuhan (~91,136), Karachi (~143,228),Shanghai (~125,674) and Chongqing(~288,924)
+
+* Cities in the bottom 1 Percentile of Domestic Visitors in 2028 were Malacca (~18), Dubrovnik (~89), Liege (~129) and Reykjavik (~208).
+
+* Cities in the 99th Percentile for International Visitors in 2028 were Dubai (~25,699), Bangcok (~27,116), Macao (~27,846) and Hong Kong (~32,457).
+
+* Cities in the bottom 1 Percentile for International Visitors in 2028 were Surat (~3), Malacca (~37), Tianan (~50) and Leicester (~79). 
+
+* The median number of domestic overnight visitors for all cities included within the database was 2,462. The minimum and maximum were ~10 (Malacca) and ~145,578 (Chongqing).
+
+* The median number of international overnight visitors for all cities included within the database was ~1,246. The minimum and maximum were ~3 (Surat), and ~32,457 (Hong Kong).
+
+```{r echo=FALSE}
+# Summary Stats of Cities within Countries
+sc_reduced <- select(sorted_country, -c("Region/Country", "Units", "Scale", "Measurement", "Source", "Seasonally adjusted", "Base year price", "Base year index", "Historical end year", "Historical end quarter", "Date of last update", "Source details", "Additional source details", "Indicator code", "Databank code" ))
+
+sc_dom<- subset(sc_reduced, Indicator == "Domestic overnight visits")
+sc_intl <- subset(sc_reduced, Indicator == "International overnight visits") 
+
+usa_dom <-subset(sc_dom, country_code == 'USA')
+usa_intl <- subset(sc_intl, country_code == 'USA')
+
+# 2019 ------------------------------------------------------------------------------
+# quantile(usa_dom$`2019`, c(0.95))
+# quantile(usa_dom$`2019`, c(0.05))
+# summary(usa_dom$`2019`)
+# 
+# quantile(usa_intl$`2019`, c(0.95))
+# quantile(usa_intl$`2019`, c(0.05))
+# summary(usa_intl$`2019`)
+
+#2028 ---------------------------------------------------------------------------------
+quantile(usa_dom$`2028`, c(0.95))
+quantile(usa_dom$`2028`, c(0.05))
+summary(usa_dom$`2028`)
+
+quantile(usa_intl$`2028`, c(0.95))
+quantile(usa_intl$`2028`, c(0.05))
+summary(usa_intl$`2028`)
+```
+## 2019 US Cities Metrics
+* Cities in the 95th Percentile for Domestic Travel in 2019 were Las Vegas (~22,947), New York City (~16,309) and Chicago (~14,070).
+
+* Cities in the bottom 5th Percentile for Domestic Travel in 2019 were Providence (~290), El Paso (~434) and Buffalo (~1,337).
+
+* Cities in the 95th Percentile for International Travel in 2019 were New York City (~13,523), Orlando (~6,344) and Los Angeles (~7,422)
+
+* Cities in the bottom 5th Percentile for International Travel in 2019 were Providence (~108), Oklahoma City (~119) and Kansas City (~142).
+
+* The median number of domestic travel in the US in 2019 was 3,803. The minimum and maximum domestic visitors was ~290 (Providence) and ~22,947 (Las Vegas.)
+
+* The median number of domestic travel in the US in 2019 was 3,803. The minimum and maximum domestic visitors was ~290 (Providence) and ~22,947 (Las Vegas.)
+
+
+## 2028 US Cities Metrics
+* Cities in the 95th Percentile for Domestic Travel in 2028 were Las Vegas (~31,050), New York City (~18,664) and Chicago (~17,465).
+
+* Cities in the bottom 5th Percentile for Domestic Travel in 2028 were Providence (~375), El Paso (~577) and Buffalo (~1,794).
+
+* Cities in the 95th Percentile for International Travel in 2028 were New York City (~18,713), Orlando (~7,836) and Los Angeles (~9,168)
+
+* Cities in the bottom 5th Percentile for International Travel in 2028 were Providence (~137), Oklahoma City (~150) and Kansas City (~174).
+
+* The median number of domestic travel in the US in 2028 was ~5,224. The minimum and maximum domestic visitors was ~375 (Providence) and ~31,050 (Las Vegas.)
+
+* The median number of domestic travel in the US in 2028 was 3,803. The minimum and maximum domestic visitors was ~137 (Providence) and ~18,713 (New York City).
+
+
+
+
+<!-- # Computing the Difference between Domestic and International for Each Country  -->
+<!-- ```{r echo=FALSE} -->
+<!-- # Computation of Differences per Country -->
+<!-- library(dplyr) -->
+<!-- library(reshape2) -->
+<!-- diff_clustered2019 <- new_clustered_country %>%  -->
+<!--     dcast(Country ~ Indicator, value.var = "2019", fill = 0) %>%  -->
+<!--     mutate(Diff = `Domestic overnight visits` - `International overnight visits`) %>%  -->
+<!--     select(Country, Diff) -->
+<!-- diff_clustered2020 <- new_clustered_country %>%  -->
+<!--     dcast(Country ~ Indicator, value.var = "2020", fill = 0) %>%  -->
+<!--     mutate(Diff = `Domestic overnight visits` - `International overnight visits`) %>%  -->
+<!--     select(Country, Diff) -->
+<!-- diff_clustered2021 <- new_clustered_country %>%  -->
+<!--     dcast(Country ~ Indicator, value.var = "2021", fill = 0) %>%  -->
+<!--     mutate(Diff = `Domestic overnight visits` - `International overnight visits`) %>%  -->
+<!--     select(Country, Diff) -->
+<!-- diff_clustered2022 <- new_clustered_country %>%  -->
+<!--     dcast(Country ~ Indicator, value.var = "2022", fill = 0) %>%  -->
+<!--     mutate(Diff = `Domestic overnight visits` - `International overnight visits`) %>%  -->
+<!--     select(Country, Diff) -->
+<!-- diff_clustered2023 <- new_clustered_country %>%  -->
+<!--     dcast(Country ~ Indicator, value.var = "2023", fill = 0) %>%  -->
+<!--     mutate(Diff = `Domestic overnight visits` - `International overnight visits`) %>%  -->
+<!--     select(Country, Diff) -->
+<!-- diff_clustered2024 <- new_clustered_country %>%  -->
+<!--     dcast(Country ~ Indicator, value.var = "2024", fill = 0) %>%  -->
+<!--     mutate(Diff = `Domestic overnight visits` - `International overnight visits`) %>%  -->
+<!--     select(Country, Diff) -->
+<!-- diff_clustered2025 <- new_clustered_country %>%  -->
+<!--     dcast(Country ~ Indicator, value.var = "2025", fill = 0) %>%  -->
+<!--     mutate(Diff = `Domestic overnight visits` - `International overnight visits`) %>%  -->
+<!--     select(Country, Diff) -->
+<!-- diff_clustered2026 <- new_clustered_country %>%  -->
+<!--     dcast(Country ~ Indicator, value.var = "2026", fill = 0) %>%  -->
+<!--     mutate(Diff = `Domestic overnight visits` - `International overnight visits`) %>%  -->
+<!--     select(Country, Diff) -->
+<!-- diff_clustered2027 <- new_clustered_country %>%  -->
+<!--     dcast(Country ~ Indicator, value.var = "2027", fill = 0) %>%  -->
+<!--     mutate(Diff = `Domestic overnight visits` - `International overnight visits`) %>%  -->
+<!--     select(Country, Diff) -->
+<!-- diff_clustered2028 <- new_clustered_country %>%  -->
+<!--     dcast(Country ~ Indicator, value.var = "2028", fill = 0) %>%  -->
+<!--     mutate(Diff = `Domestic overnight visits` - `International overnight visits`) %>%  -->
+<!--     select(Country, Diff) -->
+
+<!-- dcs <- list(diff_clustered2019, diff_clustered2020, diff_clustered2021, diff_clustered2022, diff_clustered2023, diff_clustered2024, diff_clustered2025, diff_clustered2026, diff_clustered2027, diff_clustered2028) -->
+
+<!-- diff_total_clustered <- Reduce(function(x, y) merge(x, y, by="Country", all=TRUE), dcs) -->
+<!-- diff_total_clustered <- setNames(diff_total_clustered, c("Country","2019","2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028")) -->
+
+
+<!-- ``` -->
