@@ -23,7 +23,7 @@ Worked on a volunteer project for Jon Tesser of NYC & Co. Ran substantial statsi
 * Conducted initial overview analysis on combined tourism within cities, countries and regions
 * Sought to find an initial sense of a trend, and potential effect of COVID-19 pandemic.
 ![](/images/VisitorsBoxPlot.png)
-{{< caption >}}Boxplot mapping the number of total visitors in each Country (clustered cities) from 2019-2028.{{< /caption >}}
+*Fig. 1:Boxplot mapping the number of total visitors in each Country (clustered cities) from 2019-2028.*
 ![](/images/Visitors:year.png)
-{{< caption >}}Line graph indicating the number of visitors for each Region (clustered cities within clustered countries) from 2019-2028.{{< /caption >}}
+*Fig. 2: Line graph indicating the number of visitors for each Region (clustered cities within clustered countries) from 2019-2028.*
 
