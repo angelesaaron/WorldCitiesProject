@@ -23,16 +23,31 @@ Worked on a volunteer project for Jon Tesser of NYC & Co. Ran substantial statsi
 * Conducted initial overview analysis on combined tourism within cities, countries and regions
 * Sought to find an initial sense of a trend, and potential effect of COVID-19 pandemic.
 ![](/images/VisitorsBoxPlot.png)
-  * Fig. 1:Boxplot mapping the number of total visitors in each Country (clustered cities) from 2019-2028.
+  * Fig. 1: Boxplot mapping the number of total visitors in each Country (clustered cities) from 2019-2028.
 ![](/images/Visitors:year.png)
   * Fig. 2: Line graph indicating the number of visitors for each Region (clustered cities within clustered countries) from 2019-2028.
 
 ## Understanding Year-Year Change (amidst pandemic)
 * Computed year to year percent increase for increments within 2019 to 2028 for combined travel
 ![](/images/PercInc-Total.png)
- * Fig. 3: Line graph indicating the year-year percent increase for intervals between 2019 and 2028
+  * Fig. 3: Line graph indicating the year-year percent increase for intervals between 2019 and 2028
 * Observed a percent decrease for most regions from 2019-2020 indicative of the effect of the COVID-19 pandemic.
 * Year-year increase rises and then remains positive within the bounds of data
-* Curve flattens out and the percent increases 0 as tourism appears to stabilize.
+* Curve flattens out and the percent increases 0 as tourism appears to stabilize
+
+### Modeled Year-Year Percent Increase Change
+* Was able to model the year-year increment percent increase change with a transformed simple linear regression
+![](/images/RegPlot.png)
+  * Fig. 4: Plot of total year-year percent increase for increments within 2019 to 2028 for combined travel
+* All assumptions of SLR were met.
+![](/images/AssumptionsPlots.png)
+  * Fig. 5: qqPlot, Residual Plot, Cook's Distance Plot for Model
+* Computed an adjusted R-squared of 0.9514 for our transformed model
+
+## Analyzing Domestic v.s. International Travel
+![](/images/Dom:Intl.png)
+  * Fig. 6: Simulatenous plots of domestic (top) and international (bottom) visitors percent increase/decrease within each clustered region within the increments of 2019-2028
+* Noticed that international travel expects a large surge after the pandemic as opposed to domestic travel, could be a result of loosening of international travel restrictions
+* Yearly percent changes for domestic and international are fairly consistent with region
 
 
